@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Start Page</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="background-overlay" aria-hidden="true"></div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <header class="main-header">
+    <div class="header-left">
+      <h1 class="site-title">Start Page</h1>
+    </div>
+    <div class="header-right">
+      <button id="settings-btn" aria-label="Open settings" tabindex="0">⚙️</button>
+      <button id="mode-toggle" aria-label="Toggle dark/light mode" tabindex="0">🌙</button>
+    </div>
+  </header>
+  <main>
+    <section class="widgets-grid">
+
+      <!-- WEATHER WIDGET -->
+      <div class="widget" id="weather-widget" tabindex="0" aria-label="Weather panel">
+        <div class="widget-header">
+          <span>Weather</span>
+          <button class="widget-close" aria-label="Hide weather widget" tabindex="0">✕</button>
+        </div>
+        <div class="widget-body" id="weather-content">
+          <span class="loader"></span>
+        </div>
+      </div>
+
+      <!-- CALENDAR WIDGET -->
+      <div class="widget" id="calendar-widget" tabindex="0" aria-label="Calendar panel">
+        <div class="widget-header">
+          <span>Calendar</span>
+          <button class="widget-close" aria-label="Hide calendar widget" tabindex="0">✕</button>
+        </div>
+        <div class="widget-body" id="calendar-content"></div>
+      </div>
+
+      <!-- TO-DO WIDGET -->
+      <div class="widget" id="todo-widget" tabindex="0" aria-label="To-do panel">
+        <div class="widget-header">
+          <span>To-Do</span>
+          <button class="widget-close" aria-label="Hide to-do widget" tabindex="0">✕</button>
+        </div>
+        <div class="widget-body">
+          <form id="todo-form" autocomplete="off">
+            <input type="text" id="todo-input" placeholder="Add a task..." aria-label="Add a task">
+            <button type="submit" aria-label="Add task">+</button>
+          </form>
+          <ul id="todo-list" aria-live="polite"></ul>
+        </div>
+      </div>
+
+      <!-- NEWS WIDGET -->
+      <div class="widget" id="news-widget" tabindex="0" aria-label="News panel">
+        <div class="widget-header">
+          <span>News</span>
+          <button class="widget-close" aria-label="Hide news widget" tabindex="0">✕</button>
+        </div>
+        <div class="widget-body" id="news-content">
+          <span class="loader"></span>
+        </div>
+      </div>
+
+      <!-- CLOCK WIDGET -->
+      <div class="widget" id="clock-widget" tabindex="0" aria-label="Clock panel">
+        <div class="widget-header">
+          <span>Clock</span>
+          <button class="widget-close" aria-label="Hide clock widget" tabindex="0">✕</button>
+        </div>
+        <div class="widget-body">
+          <div>
+            <span id="clock"></span>
+            <button id="clock-toggle" class="inline-btn" title="Toggle 12/24h time" aria-label="Toggle 12/24h">⏱️</button>
+          </div>
+          <div id="date"></div>
+        </div>
+      </div>
+
+      <!-- QUOTE WIDGET -->
+      <div class="widget" id="quote-widget" tabindex="0" aria-label="Inspiration panel">
+        <div class="widget-header">
+          <span>Inspiration</span>
+          <button class="widget-close" aria-label="Hide quote widget" tabindex="0">✕</button>
+        </div>
+        <div class="widget-body" id="quote-content">
+          <span class="loader"></span>
+          <button id="next-quote" class="inline-btn" aria-label="Next quote">⟳</button>
+        </div>
+      </div>
+
+      <!-- BOOKMARKS WIDGET -->
+      <div class="widget" id="bookmarks-widget" tabindex="0" aria-label="Bookmarks panel">
+        <div class="widget-header">
+          <span>Bookmarks</span>
+          <button class="widget-close" aria-label="Hide bookmarks widget" tabindex="0">✕</button>
+        </div>
+        <div class="widget-body">
+          <ul id="bookmarks-list"></ul>
+          <form id="bookmark-form" autocomplete="off">
+            <input type="url" id="bookmark-url" placeholder="URL" required>
+            <input type="text" id="bookmark-title" placeholder="Title" required>
+            <button type="submit" aria-label="Add bookmark">+</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- SETTINGS MODAL -->
+  <div id="settings-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="settings-title" tabindex="-1" aria-hidden="true">
+    <div class="modal-content">
+      <h2 id="settings-title">Settings</h2>
+      <form id="settings-form" autocomplete="off">
+        <label>
+          Background:
+          <select id="bg-type">
+            <option value="default">Default</option>
+            <option value="gradient">Gradient</option>
+            <option value="custom">Custom Image URL</option>
+          </select>
+        </label>
+        <label id="bg-url-label" style="display:none;">
+          Image URL:
+          <input type="url" id="bg-url" placeholder="Paste image URL">
+        </label>
+        <label>
+          Theme:
+          <select id="theme-select">
+            <option value="auto">Auto</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </label>
+        <fieldset>
+          <legend>Show/Hide Widgets</legend>
+          <label><input type="checkbox" class="widget-toggle" value="weather-widget" checked> Weather</label>
+          <label><input type="checkbox" class="widget-toggle" value="calendar-widget" checked> Calendar</label>
+          <label><input type="checkbox" class="widget-toggle" value="todo-widget" checked> To-Do</label>
+          <label><input type="checkbox" class="widget-toggle" value="news-widget" checked> News</label>
+          <label><input type="checkbox" class="widget-toggle" value="clock-widget" checked> Clock</label>
+          <label><input type="checkbox" class="widget-toggle" value="quote-widget" checked> Inspiration</label>
+          <label><input type="checkbox" class="widget-toggle" value="bookmarks-widget" checked> Bookmarks</label>
+        </fieldset>
+        <div class="settings-buttons-group">
+          <button type="submit">Save</button>
+          <button type="button" id="settings-close">Cancel</button>
+          <button type="button" id="settings-reset">Reset to Defaults</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

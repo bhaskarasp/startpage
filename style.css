@@ -1,0 +1,435 @@
+:root {
+  --color-bg: #f8f9fb;
+  --color-fg: #222;
+  --color-accent: #3b82f6;
+  --color-card: #fff;
+  --color-border: #e5e7eb;
+  --color-shadow: rgba(0,0,0,0.06);
+  --color-muted: #6b7280;
+  --color-success: #10b981;
+  --color-danger: #ef4444;
+  --color-bg-dark: #17181c;
+  --color-fg-dark: #f4f4f4;
+  --color-card-dark: #22232a;
+  --color-border-dark: #23232f;
+  --color-shadow-dark: rgba(0,0,0,0.19);
+  --radius: 1.2em;
+  --transition: 0.18s cubic-bezier(.4,0,.2,1);
+  --gap: 1.5rem;
+  --widget-min-width: 260px;
+  --widget-max-width: 410px;
+  --toast-bg: #333d;
+}
+[data-theme="dark"] {
+  --color-bg: var(--color-bg-dark);
+  --color-fg: var(--color-fg-dark);
+  --color-card: var(--color-card-dark);
+  --color-border: var(--color-border-dark);
+  --color-shadow: var(--color-shadow-dark);
+}
+html {
+  font-size: 16px;
+  box-sizing: border-box;
+}
+*, *::before, *::after {box-sizing: inherit;}
+body {
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+  margin: 0; line-height: 1.65; min-height: 100vh;
+  transition: background .3s, color .3s;
+  position: relative;
+}
+#background-overlay {
+  z-index: 0; position: fixed; inset: 0;
+  background: no-repeat center center/cover;
+  opacity: 0.18;
+  pointer-events: none;
+  transition: background-image 0.3s, opacity 0.3s;
+  /* Ensure image always covers the space and handles aspect ratios gracefully */
+  background-size: cover;
+  background-position: center;
+}
+body.bg-gradient #background-overlay {
+  background: linear-gradient(135deg, #6dd5fa 0%, #2980b9 100%);
+  background-size: cover; /* Redundant but good for clarity */
+  background-image: none !important; /* Override potential custom image */
+  opacity: 0.26;
+}
+/* Ensure default overlay has a subtle background-color to always be visible even if image fails to load */
+#background-overlay:not([style*="background-image"]):not(body.bg-gradient #background-overlay) {
+    background-color: var(--color-bg); /* Or a very subtle grey */
+}
+
+.main-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1.1rem var(--gap); background: transparent; position: relative; z-index: 1;
+}
+.site-title {margin: 0; font-size: 2rem; font-weight: 600; letter-spacing: 0.03em; color: var(--color-accent);}
+.header-right {display: flex; align-items: center; gap: 1rem;}
+#settings-btn, #mode-toggle {
+  background: none; border: none; font-size: 1.7rem; padding: 0.45em;
+  cursor: pointer; border-radius: 50%; transition: background 0.2s;
+  min-width: 44px; min-height: 44px;
+}
+#settings-btn:focus, #mode-toggle:focus {outline: 2px solid var(--color-accent);}
+#settings-btn:hover, #mode-toggle:hover {background: var(--color-border);}
+
+main {padding: 0 var(--gap) var(--gap);}
+
+.widgets-grid {
+  display: grid;
+  /* Use auto-fit for flexible column count, ensuring at least one widget fits */
+  grid-template-columns: repeat(auto-fit, minmax(var(--widget-min-width), 1fr));
+  gap: var(--gap);
+  margin-top: 1.5rem;
+  /* Align items to the start of their grid area */
+  align-items: start; /* This is important for widgets not to stretch by default */
+}
+/* Ensure widgets don't shrink below their min-width or overflow on smaller screens */
+.widget {
+  background: var(--color-card); border-radius: var(--radius);
+  box-shadow: 0 2px 8px var(--color-shadow); border: 1px solid var(--color-border);
+  min-width: 0; /* Allows widget to shrink below min-width if necessary, but grid auto-fit should prevent this */
+  max-width: 100%; /* Ensures widget does not exceed its grid cell */
+  display: flex; flex-direction: column;
+  transition: background .3s, box-shadow .3s, border .3s;
+  outline: none;
+  /* Flex-grow for widget itself, so it can expand if its content wants to */
+  flex-grow: 1; /* Allow widgets to grow and fill vertical space if needed by content */
+}
+.widget-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.85em 1.1em 0.65em 1.1em; font-weight: 600; font-size: 1.1rem;
+  border-bottom: 1px solid var(--color-border); background: transparent;
+}
+.widget-close {
+  background: none; border: none; font-size: 1.25em; cursor: pointer;
+  color: var(--color-muted); border-radius: 50%; padding: 0.2em 0.4em;
+  transition: background 0.15s;
+  min-width: 36px; min-height: 36px;
+}
+.widget-close:hover, .widget-close:focus {
+  background: var(--color-border); color: var(--color-danger); outline: none;
+}
+.widget-body {
+  padding: 1.1em 1.2em 1.2em 1.2em;
+  flex: 1 1 auto; /* Allow widget-body to grow and shrink, taking available space */
+  display: flex;
+  flex-direction: column;
+  gap: 0.8em;
+  /* For the blank space, we want the body itself to manage its internal children's distribution */
+  justify-content: flex-start; /* Default, but can be space-between for certain widgets */
+}
+.inline-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.25em;
+  color: var(--color-accent);
+  cursor: pointer;
+  margin-left: 0.5em;
+  vertical-align: middle;
+  border-radius: 0.4em;
+  transition: background 0.15s;
+  min-width: 36px; min-height: 36px;
+}
+.inline-btn:focus, .inline-btn:hover {background: var(--color-border);}
+#toast {
+  position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+  min-width: 180px; max-width: 90vw; z-index: 50;
+  background: var(--toast-bg); color: #fff; padding: 0.85em 1.5em;
+  border-radius: 1.2em; font-size: 1.12em; text-align: center;
+  opacity: 0; pointer-events: none; transition: opacity .3s;
+}
+#toast.show {opacity: 1;}
+
+/* --- Widget Specific Overhauls --- */
+
+/* Weather Widget */
+#weather-content {display: flex; flex-direction: column; align-items: flex-start; gap: .4em;}
+.weather-temp {font-size: 2.2em; font-weight: bold;}
+.weather-desc {color: var(--color-muted);}
+.weather-location {font-size: 1em; color: var(--color-accent);}
+.weather-icon {width: 2.5em; height: 2.5em; vertical-align: middle;}
+.weather-form-row {
+  display: flex; align-items: center; gap: .5em; margin-bottom: .6em;
+  width: 100%; /* Ensure row takes full width */
+  flex-wrap: wrap; /* Allow items to wrap if space is tight */
+}
+.weather-city-input {
+  flex-grow: 1; /* Allow input to take available space */
+  min-width: 120px; /* Prevent input from becoming too small */
+  font-size: 1em; padding: .25em .6em; border-radius: .6em; border: 1px solid var(--color-border);
+}
+.weather-unit-btn {
+  flex-shrink: 0; /* Prevent buttons from shrinking */
+  font-size: 1em; padding: .18em .7em;
+}
+
+/* Calendar Widget */
+#calendar-content {
+  display: flex;
+  flex-direction: column;
+  gap: .2em;
+  flex-grow: 1; /* Allow calendar content to grow */
+  justify-content: space-between; /* Distribute space */
+}
+.calendar-table {width: 100%; border-collapse: collapse; font-size: 0.96em;}
+.calendar-table th, .calendar-table td {text-align: center; padding: 0.25em 0.45em;}
+.calendar-table th {color: var(--color-accent); font-weight: 600;}
+.calendar-table td {border-radius: 0.6em; cursor: pointer; transition: background 0.15s;}
+.calendar-today {background: var(--color-accent); color: #fff; font-weight: 700;}
+.calendar-other-month {color: var(--color-muted); opacity: 0.6;}
+
+/* To-Do Widget */
+#todo-form {display: flex; gap: 0.6em; margin-bottom: 0.8em; width: 100%;}
+#todo-input {
+  flex: 1 1 auto; /* Allow input to grow and shrink */
+  min-width: 0; /* Necessary for flex item to shrink below content size */
+  font-size: 1em; padding: 0.5em; border-radius: 0.6em; border: 1px solid var(--color-border);
+}
+#todo-form button {
+  flex-shrink: 0; /* Prevent button from shrinking */
+  font-size: 1.3em; padding: 0.13em 0.7em; border: none; background: var(--color-accent); color: #fff; border-radius: 0.6em; cursor: pointer; transition: background 0.2s;
+}
+#todo-form button:active {background: #2563eb;}
+#todo-list {list-style: none; margin: 0; padding: 0; flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start;} /* Added flex properties */
+.todo-item {
+  display: flex; align-items: center; gap: .6em; padding: 0.3em 0;
+  font-size: 1.03em; word-break: break-word;
+  transition: background 0.2s;
+  background: transparent;
+  flex-grow: 1; /* Allow todo items to grow */
+}
+.todo-item.completed { text-decoration: line-through; opacity: .6;}
+.todo-checkbox {accent-color: var(--color-accent); width: 1em; height: 1em;}
+.todo-remove {
+  background: none; border: none; color: var(--color-danger); margin-left: auto;
+  font-size: 1.1em; cursor: pointer; border-radius: 0.4em; padding: 0.15em;
+  transition: background 0.15s; min-width: 36px; min-height: 36px;
+}
+.todo-remove:hover, .todo-remove:focus {background: var(--color-border);}
+.todo-undo {
+  background: var(--color-success); color: #fff; border: none; border-radius: 0.4em;
+  padding: 0.15em 0.8em; font-size: 1em; margin-left: 1em; cursor: pointer;
+}
+.todo-undo:focus, .todo-undo:hover {background: #059669;}
+
+/* News Widget */
+#news-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+  flex: 1; /* Allow news-content to grow within its parent widget-body */
+  justify-content: flex-start; /* Ensure items start at the top, space will be added by flex-grow on items */
+}
+.news-source-row {
+  display: flex; gap: 0.5em; align-items: center; margin-bottom: .5em;
+  flex-wrap: wrap; /* Allow items to wrap */
+}
+.news-feed-select {
+  flex-grow: 1; /* Allow select to take available space */
+  min-width: 120px; /* Prevent select from becoming too small */
+  font-size: 1em; padding: .22em .5em; border-radius: .5em; border: 1px solid var(--color-border);
+}
+.news-feed-url-input {
+  flex-grow: 1; /* Allow input to take available space */
+  min-width: 120px; /* Prevent input from becoming too small */
+  font-size: 1em; padding: .22em .5em; border-radius: .5em; border: 1px solid var(--color-border);
+}
+.news-add-source-btn {
+  flex-shrink: 0; /* Prevent button from shrinking */
+  font-size: 1.05em; padding: .18em .7em;
+}
+.news-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1em;
+  margin-bottom: 0.5em; /* Standard spacing between news items */
+  flex-grow: 1; /* IMPORTANT: Allows each news item to grow and fill available space */
+}
+.news-title {color: var(--color-accent); font-weight: 600; text-decoration: none; font-size: 1.01em;}
+.news-source {color: var(--color-muted); font-size: 0.9em;}
+
+/* Clock Widget */
+#clock-widget .widget-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Distribute space if clock widget grows */
+  flex-grow: 1;
+}
+#clock {font-size: 2.3em; font-weight: 500; letter-spacing: 0.07em;}
+#date {color: var(--color-muted); font-size: 1.11em;}
+
+/* Quote Widget */
+#quote-content {
+  font-size: 1.13em;
+  color: var(--color-muted);
+  font-style: italic;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7em;
+  flex-grow: 1; /* Allow quote content to grow */
+  justify-content: space-between; /* Distribute space between quote and button */
+}
+.quote-author {align-self: flex-end; color: var(--color-accent); font-weight: 500; font-size: 1em;}
+
+/* Bookmarks Widget */
+#bookmarks-list {list-style: none; padding: 0; margin: 0 0 0.6em 0; display: flex; flex-direction: column; gap: 0.5em; flex-grow: 1; justify-content: flex-start;} /* Added flex properties */
+.bookmark-item {
+  display: flex; align-items: center; gap: 0.5em;
+  flex-grow: 1; /* Allow bookmark items to grow */
+}
+.bookmark-link {color: var(--color-accent); text-decoration: none; font-weight: 500; word-break: break-all;}
+.bookmark-favicon {width: 1.2em; height: 1.2em; margin-right: 0.3em; vertical-align: middle;}
+.bookmark-remove {
+  background: none; border: none; color: var(--color-danger); font-size: 1em; cursor: pointer; border-radius: 0.4em; padding: 0.13em 0.4em; margin-left: auto; transition: background 0.15s; min-width: 36px; min-height: 36px;
+}
+.bookmark-remove:hover, .bookmark-remove:focus {background: var(--color-border);}
+#bookmark-form {
+  display: flex; gap: 0.5em;
+  flex-wrap: wrap; /* Allow inputs to wrap */
+}
+#bookmark-form input[type="url"], #bookmark-form input[type="text"] {
+  flex: 1 1 120px; /* Allow inputs to grow, but ensure a min-width of 120px before wrapping */
+  font-size: 0.97em; padding: 0.38em 0.5em; border-radius: 0.5em; border: 1px solid var(--color-border);
+}
+#bookmark-form button {
+  flex-shrink: 0; /* Prevent button from shrinking */
+  font-size: 1.17em; padding: 0.13em 0.7em; border: none; background: var(--color-accent); color: #fff; border-radius: 0.5em; cursor: pointer; transition: background 0.18s;
+}
+#bookmark-form button:active {background: #2563eb;}
+
+.loader {
+  display: inline-block; width: 1.3em; height: 1.3em; border: 0.18em solid var(--color-border); border-top: 0.18em solid var(--color-accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0.5em auto;
+}
+@keyframes spin {to { transform: rotate(360deg); } }
+
+/* --- Settings Modal Overhaul --- */
+.modal {
+  display: none; position: fixed; z-index: 10; inset: 0; background: rgba(22,22,30,0.22); justify-content: center; align-items: center;
+  overflow-y: auto; /* Allow scrolling if modal content is too tall */
+  padding: 1rem; /* Add some padding so content isn't flush with screen edges */
+}
+.modal[aria-hidden="false"] {display: flex;}
+.modal-content {
+  background: var(--color-card); color: var(--color-fg); border-radius: var(--radius); box-shadow: 0 6px 32px var(--color-shadow);
+  min-width: 290px;
+  max-width: 500px; /* Constrain modal width for better readability */
+  width: 100%; /* Ensure it takes full width up to max-width */
+  padding: 2em 1.2em 1.2em 1.2em; position: relative;
+  margin: auto; /* Center vertically if overflow-y auto is active */
+}
+#settings-form {display: flex; flex-direction: column; gap: 1em;}
+#settings-form label, #settings-form fieldset {font-size: 1em;}
+#settings-form input, #settings-form select {
+  margin-top: .4em; font-size: 1em; padding: 0.4em; border-radius: 0.5em; border: 1px solid var(--color-border);
+  width: 100%; /* Ensure inputs/selects take full width of their container */
+  max-width: 100%; /* Prevent overflow */
+}
+#bg-url-label { /* Style for the custom background URL label specifically */
+  display: flex; /* Make it a flex container */
+  flex-direction: column; /* Stack label and input */
+}
+
+/* Specific styling for the settings buttons to ensure alignment */
+.settings-buttons-group {
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+    gap: 0.8em; /* Consistent spacing between buttons */
+    margin-top: 1.5em; /* Add some space above the buttons */
+    flex-wrap: wrap; /* Allow buttons to wrap if screen is too narrow */
+}
+#settings-form button {
+  margin-top: 0; /* Reset previous margin-top */
+  font-size: 1em; padding: 0.55em 1.2em; border-radius: 0.5em; border: none; background: var(--color-accent); color: #fff; cursor: pointer; transition: background 0.18s;
+  flex-shrink: 0; /* Prevent buttons from shrinking too much */
+}
+#settings-form button[type="button"] {
+    background: var(--color-muted);
+    color: #fff;
+    margin-left: 0; /* Reset previous margin-left */
+}
+#settings-form button[type="button"]:hover {background: #374151;}
+
+/* Show/Hide Widgets checkboxes */
+#settings-form fieldset {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Auto-fit checkboxes in columns */
+  gap: 0.5em 1em; /* Vertical and horizontal gap */
+  border: 1px solid var(--color-border);
+  border-radius: 0.5em;
+  padding: 1em;
+  margin-top: 1em;
+}
+#settings-form fieldset legend {
+    font-weight: 600;
+    padding: 0 0.5em;
+    margin-left: -0.5em; /* Adjust to align with grid items */
+}
+#settings-form fieldset label {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    margin-top: 0; /* Reset margin-top */
+}
+#settings-form fieldset input[type="checkbox"] {
+    width: auto; /* Allow checkbox to take its natural width */
+    margin-top: 0; /* Reset margin-top for checkboxes */
+}
+
+:focus-visible {outline: 2px solid var(--color-accent); outline-offset: 2px;}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 700px) {
+  .main-header, main {padding-left: 0.8rem; padding-right: 0.8rem;}
+  .widgets-grid {gap: 1rem;}
+}
+@media (max-width: 500px) {
+  .main-header {
+    flex-direction: column; align-items: flex-start; gap: 0.5em;
+    padding-bottom: 0.8rem; /* Add space below header when stacked */
+  }
+  .site-title {
+    width: 100%; /* Ensure title takes full width */
+    text-align: center; /* Center title when stacked */
+  }
+  .header-right {
+    width: 100%; /* Ensure buttons take full width */
+    justify-content: center; /* Center buttons when stacked */
+  }
+  .widgets-grid {
+    grid-template-columns: 1fr; /* Stack widgets vertically */
+    gap: 1rem;
+  }
+  .widget {
+    min-width: 0; /* Allow widgets to shrink as needed */
+    max-width: 100%; /* Take full available width */
+    padding: 0; /* Adjust padding if needed, or rely on widget-body */
+  }
+  /* Specific form adjustments for very small screens */
+  #bookmark-form input[type="url"], #bookmark-form input[type="text"] {
+    flex: 1 1 100%; /* Stack URL and Title inputs */
+  }
+  #bookmark-form button {
+    width: 100%; /* Make add button full width */
+  }
+  .news-source-row, .weather-form-row {
+    flex-direction: column; /* Stack elements vertically */
+    align-items: stretch; /* Stretch items to fill width */
+  }
+  .news-feed-select, .news-feed-url-input, .weather-city-input {
+    width: 100%; /* Ensure these take full width */
+  }
+  .news-add-source-btn, .weather-unit-btn, #weather-refresh-btn {
+    width: 100%; /* Ensure buttons take full width */
+  }
+  .settings-buttons-group {
+    flex-direction: column; /* Stack settings buttons on very small screens */
+    align-items: stretch; /* Stretch buttons to fill width */
+  }
+  #settings-form button {
+    width: 100%; /* Make each button full width when stacked */
+  }
+}
+button, input[type="checkbox"] {touch-action: manipulation; min-height: 2.2em;}
